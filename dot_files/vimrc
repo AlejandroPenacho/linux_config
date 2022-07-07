@@ -1,0 +1,106 @@
+let g:matchparen_timeout = 10
+let g:matchparen_insert_timeout = 10
+
+set tabstop=4
+set shiftwidth=4
+set autoindent
+
+set number
+set relativenumber
+
+set foldmethod=indent
+" set foldcolumn=3  	Maybe it is not worth it after all
+
+set hlsearch
+
+
+:autocmd!
+autocmd BufLeave * set textwidth=0
+autocmd BufEnter *.rs,*.py,*.js,*.ts set textwidth=79
+
+
+autocmd BufEnter *.rs nnoremap çc 0i//<space><esc>$ | nnoremap çu 0xxx$
+autocmd BufEnter *.py nnoremap çc 0i#<space><esc>$ | nnoremap çu 0xx$
+autocmd BufEnter *.tex,*.sty,*.cls nnoremap çc 0i%<space><esc>$ | nnoremap çu 0xxx$
+
+augroup coloring
+	" Make comments more prominent -- they are important.
+	autocmd ColorScheme nord highlight Comment guifg=#D08770
+	autocmd ColorScheme nord highlight Special guifg=#A3BE8C
+
+	autocmd ColorScheme base16-gruvbox-dark-hard call Base16hi("Comment", g:base16_gui09, "", g:base16_cterm09, "", "", "")
+
+	autocmd ColorScheme * highlight Normal guibg=None
+augroup end
+
+
+nnoremap gb :bn<enter>
+nnoremap gB :bp<enter>
+nnoremap -c :s:^\(\s*\):\1# :g<enter>j:nohlsearch<enter>
+nnoremap -n :nohlsearch<enter>
+nnoremap -j <c-]>
+
+inoremap kj <esc>
+inoremap <c-K> <esc>bdei<<c-R>"></<c-R>"><Esc>T>i
+inoremap <c-L> <Esc>bdea<<c-R>"><Enter><Tab><Enter><Left><Del></<c-R>"><Esc>ka
+nnoremap <c-T> :tabnew<enter>:term<enter><c-w>j<c-w>1_:tabprev<enter>
+inoremap {<enter> {<esc>o}<esc>kA<enter>
+
+inoremap çç <esc>caw\begin{<c-o>p}<enter>\end{<c-o>p}<esc>kA
+
+tnoremap <Esc> <c-\><c-n>
+tnoremap <c-w> <c-\><c-n><c-w>
+
+
+" deal with colors
+" if !has('gui_running')
+"   set t_Co=256
+" endif
+if (match($TERM, "-256color") != -1) && (match($TERM, "screen-256color") == -1)
+	" screen does not (yet) support truecolor
+	set termguicolors
+endif
+
+syntax on
+
+" Customize the highlight a bit.
+" Make it clearly visible which argument we're at.
+	"call Base16hi("LspSignatureActiveParameter", g:base16_gui05, g:base16_gui03, g:base16_cterm05, g:base16_cterm03, "bold", "")
+" Would be nice to customize the highlighting of warnings and the like to make
+" them less glaring. But alas
+" https://github.com/nvim-lua/lsp_extensions.nvim/issues/21
+" call Base16hi("CocHintSign", g:base16_gui03, "", g:base16_cterm03, "", "", "")
+
+
+call plug#begin('~/.vim/plugged')
+
+Plug 'arcticicestudio/nord-vim'
+Plug 'sainnhe/everforest'
+Plug 'NLKNguyen/papercolor-theme'
+Plug 'hzchirs/vim-material'
+
+Plug 'itchyny/lightline.vim'
+Plug 'w0rp/ale'
+
+Plug 'autozimu/LanguageClient-neovim', { 'branch': 'next', 'do': 'bash install.sh' }
+
+call plug#end()
+
+
+" colorscheme nord
+" colorscheme everforest
+" colorscheme PaperColor
+" colorscheme vim-material
+colorscheme base16-gruvbox-dark-hard
+
+set hidden
+
+let g:LanguageClient_serverCommands = {
+    \ 'rust': ['~/.cargo/bin/rustup', 'run', 'stable', 'rls'],
+	\ }
+    " \ 'javascript': ['/usr/local/bin/javascript-typescript-stdio'],
+    " \ 'javascript.jsx': ['tcp://127.0.0.1:2089'],
+    " \ 'python': ['/usr/local/bin/pyls'],
+    " \ 'ruby': ['~/.rbenv/shims/solargraph', 'stdio'],
+    " \ }
+
