@@ -1,0 +1,4 @@
+#!/bin/bash
+
+python3 /home/alejandro/Pictures/Linux_Pictures/wallpaper/backgrounder.py
+compton &

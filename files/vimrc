@@ -18,7 +18,6 @@ set hlsearch
 autocmd BufLeave * set textwidth=0
 autocmd BufEnter *.rs,*.py,*.js,*.ts set textwidth=79
 
-
 autocmd BufEnter *.rs nnoremap çc 0i//<space><esc>$ | nnoremap çu 0xxx$
 autocmd BufEnter *.py nnoremap çc 0i#<space><esc>$ | nnoremap çu 0xx$
 autocmd BufEnter *.tex,*.sty,*.cls nnoremap çc 0i%<space><esc>$ | nnoremap çu 0xxx$

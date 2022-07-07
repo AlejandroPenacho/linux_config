@@ -33,4 +33,3 @@ sed_files(){
 		 do mv ${file} $(sed ${sed_command} <<< ${file});
 	done
 }
-
