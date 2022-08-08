@@ -193,6 +193,7 @@ font:
   # Default colors
   #primary:
   #  background: '#1d1f21'
+  #  background: '#FFFFFF'
   #  foreground: '#c5c8c6'
 
     # Bright and dim foreground colors
@@ -536,8 +537,8 @@ font:
 # - `mods` (see key bindings)
 mouse_bindings:
   - { mouse: Right,                  action: PasteSelection }
-#  - { mouse: Right,  mods: Control, action: ExpandSelection }
-#  - { mouse: Middle, mode: ~Vi,     action: PasteSelection  }
+  - { mouse: Right,  mods: Control,  action: CopySelection }
+#  - { mouse: Middle, mode: ~Vi,     action: ExpandSelection  }
 
 # Key bindings
 #

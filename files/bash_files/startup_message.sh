@@ -33,8 +33,7 @@ do
 	coolBar=${coolBar}"${GREEN}#"
 done
 
-
-
+return
 
 printf "${GREEN}(((((((((((((((((((((/@@@@@@@@\t\t\t\e[1;97;105m $(date) \e[m\n"
 printf "${GREEN}(((((((((((((((((((((((((((@@@\n"

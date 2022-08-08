@@ -30,6 +30,7 @@ augroup coloring
 	autocmd ColorScheme base16-gruvbox-dark-hard call Base16hi("Comment", g:base16_gui09, "", g:base16_cterm09, "", "", "")
 
 	autocmd ColorScheme * highlight Normal guibg=None
+	autocmd ColorScheme * highlight NonText guibg=None
 augroup end
 
 
@@ -73,6 +74,7 @@ syntax on
 
 call plug#begin('~/.vim/plugged')
 
+Plug 'morhetz/gruvbox'
 Plug 'arcticicestudio/nord-vim'
 Plug 'sainnhe/everforest'
 Plug 'NLKNguyen/papercolor-theme'
@@ -86,11 +88,11 @@ Plug 'autozimu/LanguageClient-neovim', { 'branch': 'next', 'do': 'bash install.s
 call plug#end()
 
 
+colorscheme gruvbox
 " colorscheme nord
 " colorscheme everforest
 " colorscheme PaperColor
 " colorscheme vim-material
-colorscheme base16-gruvbox-dark-hard
 
 set hidden
 

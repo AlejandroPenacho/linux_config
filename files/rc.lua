@@ -14,9 +14,16 @@ local hotkeys_popup = require("awful.hotkeys_popup").widget
 -- when client with a matching name is opened:
 require("awful.hotkeys_popup.keys")
 
+local custom_wibar = require("penacho_mods.wibar.wibar")
+
 -- Load Debian menu entries
 local debian = require("debian.menu")
 local has_fdo, freedesktop = pcall(require, "freedesktop")
+
+
+-- Widgets
+local batteryarc_widget = require("awesome-wm-widgets.batteryarc-widget.batteryarc")
+
 
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
@@ -46,6 +53,12 @@ end
 -- {{{ Variable definitions
 -- Themes define colours, icons, font and wallpapers.
 beautiful.init(gears.filesystem.get_themes_dir() .. "default/theme.lua")
+
+beautiful.useless_gap = 3
+
+-- beautiful.notification_shape = gears.shape.rounded_bar
+beautiful.notification_bg = "#161E5AE6"
+-- beautiful.notification_height = 100
 
 -- This is used later as the default terminal and editor to run.
 terminal = "alacritty"
@@ -135,6 +148,48 @@ mymainmenu = awful.menu({
 			}
 })
 
+local icon_path = "/home/alejandro/.config/awesome/penacho_mods/png/wibar/icons/"
+
+local mytagiconmenu = awful.menu({
+	items = {
+		{
+			"Nothing",
+			function()
+				awful.screen .focused().selected_tag.icon = nil
+			end
+		},
+		{
+			"Home",
+			function()
+				awful.screen .focused().selected_tag.icon = icon_path .. "home.png"
+			end,
+			icon_path .. "home.png"
+		},
+		{
+			"Code",
+			function()
+				awful.screen .focused().selected_tag.icon = icon_path .. "code.png"
+			end,
+			icon_path .. "code.png"
+		},
+		{
+			"Firefox",
+			function()
+				awful.screen .focused().selected_tag.icon = icon_path .. "firefox.png"
+			end,
+			icon_path .. "firefox.png"
+		},
+		{
+			"Latex",
+			function()
+				awful.screen .focused().selected_tag.icon = icon_path .. "latex.png"
+			end,
+			icon_path .. "latex.png"
+		}
+	}
+})
+
+
 
 mylauncher = awful.widget.launcher({ image = beautiful.awesome_icon,
                                      menu = mymainmenu })
@@ -145,6 +200,7 @@ menubar.utils.terminal = terminal -- Set the terminal for applications that requ
 
 -- Keyboard map indicator and switcher
 mykeyboardlayout = awful.widget.keyboardlayout()
+
 
 -- {{{ Wibar
 -- Create a textclock widget
@@ -208,12 +264,39 @@ end
 -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
 -- screen.connect_signal("property::geometry", set_wallpaper)
 
+
+-- Nice cover for the wibox elements
+--[[
+local function draw_in_box(wdg, top_margin, right_margin, bottom_margin, left_margin)
+	return {
+		{
+			wdg,
+			top = top_margin,
+			right = right_margin,
+			bottom = bottom_margin,
+			left = left_margin,
+			widget = wibox.container.margin
+		},
+		bg = "black",
+		shape_border_width = 1,
+		shape_border_color = "white",
+		shape = gears.shape.rounded_bar,
+		widget = wibox.container.background
+	}
+end
+]]
+
+local home_tag = nil
+
 awful.screen.connect_for_each_screen(function(s)
     -- Wallpaper
     -- set_wallpaper(s)
 
     -- Each screen has its own tag table.
     awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
+
+	s.tags[1].icon = "/home/alejandro/.config/awesome/penacho_mods/png/wibar/icons/home.png"
+
 
     -- Create a promptbox for each screen
     s.mypromptbox = awful.widget.prompt()
@@ -226,33 +309,60 @@ awful.screen.connect_for_each_screen(function(s)
                            awful.button({ }, 4, function () awful.layout.inc( 1) end),
                            awful.button({ }, 5, function () awful.layout.inc(-1) end)))
     -- Create a taglist widget
-    s.mytaglist = awful.widget.taglist(s, awful.widget.taglist.filter.all, taglist_buttons)
+	s.mytaglist = awful.widget.taglist(s, awful.widget.taglist.filter.all, taglist_buttons)
+	-- s.mytaglist = create_taglist(s)
 
     -- Create a tasklist widget
-    s.mytasklist = awful.widget.tasklist(s, awful.widget.tasklist.filter.currenttags, tasklist_buttons)
+    s.mytasklist = awful.widget.tasklist(
+		s,
+		awful.widget.tasklist.filter.currenttags,
+		tasklist_buttons,
+		{
+			disable_task_name = true,
+			spacing = 0
+		}
+	)
 
     -- Create the wibox
-    s.mywibox = awful.wibar({ position = "bottom", screen = s })
-    -- s.mywibox = awful.wibar({ position = "bottom", screen = s, visible = false })
+	s.mywibox = custom_wibar(s, mytextclock)
+    -- s.mywibox = awful.wibar({ height = 22, position = "bottom", bg = "nil", screen = s })
 
     -- Add widgets to the wibox
+	--[[
     s.mywibox:setup {
-        layout = wibox.layout.align.horizontal,
-        { -- Left widgets
-            layout = wibox.layout.fixed.horizontal,
-            -- mylauncher,
-            s.mytaglist,
-            s.mypromptbox,
-        },
-        s.mytasklist, -- Middle widget
-        { -- Right widgets
-            layout = wibox.layout.fixed.horizontal,
-            mykeyboardlayout,
-            wibox.widget.systray(),
-            mytextclock,
-            s.mylayoutbox,
-        },
+		{
+			layout = wibox.layout.align.horizontal,
+			{ -- Left widgets
+				layout = wibox.layout.fixed.horizontal,
+				wibox.widget.textbox("   "),
+				wibox.widget.textbox("Hola"),
+				wibox.widget.textbox("  "),
+				-- mylauncher,
+				s.mytaglist,
+				wibox.widget.textbox("  "),
+				-- draw_in_box(awful.widget.watch('pomodoro gettime', 1), 0, 8, 0, 8),
+				s.mypromptbox
+			},
+			{  -- Middle widget
+				layout = wibox.layout.fixed.horizontal
+			},
+			{ -- Right widgets
+				layout = wibox.layout.fixed.horizontal,
+				{
+					layout = wibox.layout.fixed.horizontal,
+					mykeyboardlayout,
+					wibox.widget.systray(),
+					mytextclock
+				},
+				wibox.widget.textbox("   "),
+				s.mylayoutbox,
+				wibox.widget.textbox("   ")
+			}
+		},
+		bottom = 3,
+		widget = wibox.container.margin
     }
+	]]
 end)
 -- }}}
 
@@ -365,8 +475,34 @@ globalkeys = gears.table.join(
               {description = "show the menubar", group = "launcher"}),
 	
 	-- CUSTOM
-    awful.key({ modkey }, "s", function() awful.spawn("dbus-send --print-reply --dest=org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.PlayPause") end,
-              {description = "toggles play/pause in Spotify", group = "penachos"})
+    awful.key({ modkey }, "s",
+		function()
+			awful.spawn("dbus-send --print-reply --dest=org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.PlayPause")
+		end,
+    {description = "toggles play/pause in Spotify", group = "penachos"}),
+
+    awful.key({}, "XF86AudioLowerVolume", 
+		function()
+			awful.spawn("amixer -q set Master 2%-")
+			wibar_volume_timer:emit_signal("timeout")
+		end,
+        {description = "Decrease volume by 2%", group = "penachos"}),
+
+    awful.key({}, "XF86AudioRaiseVolume", 
+		function()
+			awful.spawn("amixer -q set Master 2%+")
+			wibar_volume_timer:emit_signal("timeout")
+		end,
+        {description = "Increase volume by 2%", group = "penachos"}),
+	
+	awful.key({ modkey }, "i", function() topleft_wibox.visible = not topleft_wibox.visible end,
+		{description = "toggle The Box", group = "penachos"}),
+
+	awful.key({ modkey }, "o", function() awful.spawn("pomodoro toggle") end,
+		{description = "toggle the Pomodoro timer", group = "penachos" }),
+
+    awful.key({ modkey,           }, "y", function () mytagiconmenu:show() end,
+              {description = "show main menu", group = "awesome"})
 )
 
 clientkeys = gears.table.join(
@@ -410,7 +546,13 @@ clientkeys = gears.table.join(
             c.maximized_horizontal = not c.maximized_horizontal
             c:raise()
         end ,
-        {description = "(un)maximize horizontally", group = "client"})
+        {description = "(un)maximize horizontally", group = "client"}),
+
+	awful.key({modkey, 			  }, "b",
+		function(c)
+			awful.titlebar.toggle(c)
+		end ,
+		{decription = "toogle titlebar", group = "penachos" })
 )
 
 -- Bind all key numbers to tags.
@@ -532,6 +674,16 @@ awful.rules.rules = {
       }, properties = { titlebars_enabled = false }
     },
 
+	-- First terminal
+	{ rule = { class = "first_term" },
+		properties = {
+			floating = true,
+			x = 500,
+			y = 160,
+			width = 380,
+			height = 400
+		}
+	}
 
     -- Set Firefox to always map on the tag named "2" on screen 1.
     -- { rule = { class = "Firefox" },
@@ -551,6 +703,10 @@ client.connect_signal("manage", function (c)
       and not c.size_hints.program_position then
         -- Prevent clients from being unreachable after screen count changes.
         awful.placement.no_offscreen(c)
+    end
+
+    c.shape = function(cr,w,h)
+        gears.shape.rounded_rect(cr,w,h,15)
     end
 end)
 
@@ -607,3 +763,21 @@ end)
 client.connect_signal("focus", function(c) c.border_color = beautiful.border_focus end)
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
 -- }}}
+
+
+
+awful.spawn("alacritty --class first_term,first_term")
+
+local front_widgets = require("penacho_mods.home_page.front_widgets")
+
+local home_screen = front_widgets[1].screen
+
+local home_tag = home_screen.selected_tag
+
+home_tag:connect_signal("property::selected",
+function(tag)
+	for key, widget in ipairs(front_widgets)
+	do
+		widget.visible = tag.selected
+	end
+end)
