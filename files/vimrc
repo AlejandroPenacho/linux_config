@@ -98,6 +98,8 @@ set hidden
 
 let g:LanguageClient_serverCommands = {
     \ 'rust': ['~/.cargo/bin/rustup', 'run', 'stable', 'rls'],
+	\ 'lua' : ['~/Programs/lua_lsp/bin/lua-language-server'],
+	\ 'tex' : ['~/.cargo/bin/texlab'],
 	\ }
     " \ 'javascript': ['/usr/local/bin/javascript-typescript-stdio'],
     " \ 'javascript.jsx': ['tcp://127.0.0.1:2089'],

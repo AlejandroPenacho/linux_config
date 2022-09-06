@@ -24,6 +24,7 @@ local has_fdo, freedesktop = pcall(require, "freedesktop")
 -- Widgets
 local batteryarc_widget = require("awesome-wm-widgets.batteryarc-widget.batteryarc")
 
+wibar_volume_timer = {}
 
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
@@ -150,42 +151,67 @@ mymainmenu = awful.menu({
 
 local icon_path = "/home/alejandro/.config/awesome/penacho_mods/png/wibar/icons/"
 
-local mytagiconmenu = awful.menu({
+mytagiconmenu = awful.menu({
 	items = {
 		{
 			"Nothing",
 			function()
-				awful.screen .focused().selected_tag.icon = nil
+				awful.screen.focused().selected_tag.icon = nil
 			end
 		},
 		{
 			"Home",
 			function()
-				awful.screen .focused().selected_tag.icon = icon_path .. "home.png"
+				awful.screen.focused().selected_tag.icon = icon_path .. "home.png"
 			end,
 			icon_path .. "home.png"
 		},
 		{
 			"Code",
 			function()
-				awful.screen .focused().selected_tag.icon = icon_path .. "code.png"
+				awful.screen.focused().selected_tag.icon = icon_path .. "code.png"
 			end,
 			icon_path .. "code.png"
 		},
 		{
 			"Firefox",
 			function()
-				awful.screen .focused().selected_tag.icon = icon_path .. "firefox.png"
+				awful.screen.focused().selected_tag.icon = icon_path .. "firefox.png"
 			end,
 			icon_path .. "firefox.png"
 		},
 		{
 			"Latex",
 			function()
-				awful.screen .focused().selected_tag.icon = icon_path .. "latex.png"
+				awful.screen.focused().selected_tag.icon = icon_path .. "latex.png"
 			end,
 			icon_path .. "latex.png"
-		}
+		},
+		{
+			"Inkscape",
+			function()
+				awful.screen.focused().selected_tag.icon = icon_path .. "inkscape.png"
+			end,
+			icon_path .. "inkscape.png"
+		},
+		{
+			"Zotero",
+			function()
+				awful.screen.focused().selected_tag.icon = icon_path .. "zotero.png"
+			end,
+			icon_path .. "zotero.png"
+		},
+		{
+			"Spotify",
+			function()
+				awful.screen.focused().selected_tag.icon = icon_path .. "spotify.png"
+			end,
+			icon_path .. "spotify.png"
+		},
+	},
+	theme = {
+		bg_normal = "#FFFFFF",
+		bg_focus = "#FF8401"
 	}
 })
 
@@ -325,6 +351,7 @@ awful.screen.connect_for_each_screen(function(s)
 
     -- Create the wibox
 	s.mywibox = custom_wibar(s, mytextclock)
+
     -- s.mywibox = awful.wibar({ height = 22, position = "bottom", bg = "nil", screen = s })
 
     -- Add widgets to the wibox
@@ -484,14 +511,18 @@ globalkeys = gears.table.join(
     awful.key({}, "XF86AudioLowerVolume", 
 		function()
 			awful.spawn("amixer -q set Master 2%-")
-			wibar_volume_timer:emit_signal("timeout")
+			for i=1, #wibar_volume_timer, 1 do
+				wibar_volume_timer[i]:emit_signal("timeout")
+			end
 		end,
         {description = "Decrease volume by 2%", group = "penachos"}),
 
     awful.key({}, "XF86AudioRaiseVolume", 
 		function()
 			awful.spawn("amixer -q set Master 2%+")
-			wibar_volume_timer:emit_signal("timeout")
+			for i=1, #wibar_volume_timer, 1 do
+				wibar_volume_timer[i]:emit_signal("timeout")
+			end
 		end,
         {description = "Increase volume by 2%", group = "penachos"}),
 	
@@ -664,8 +695,8 @@ awful.rules.rules = {
 	  properties = { floating = false, maximized = false }	
 	},
 	
-	-- Evince is tiled (this took way longer that may think)
-	{ rule = { instance = "evince" },
+	-- Okular is tiled (this took way longer that may think)
+	{ rule = { instance = "okular" },
 	  properties = { floating = false, maximized = false }	
 	},
 
@@ -678,10 +709,10 @@ awful.rules.rules = {
 	{ rule = { class = "first_term" },
 		properties = {
 			floating = true,
-			x = 500,
-			y = 160,
-			width = 380,
-			height = 400
+			x = 300,
+			y = 294,
+			width = 229,
+			height = 304
 		}
 	}
 
@@ -697,6 +728,7 @@ client.connect_signal("manage", function (c)
     -- Set the windows at the slave,
     -- i.e. put it at the end of others instead of setting it master.
     -- if not awesome.startup then awful.client.setslave(c) end
+
 
     if awesome.startup and
       not c.size_hints.user_position
@@ -764,9 +796,7 @@ client.connect_signal("focus", function(c) c.border_color = beautiful.border_foc
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
 -- }}}
 
-
-
-awful.spawn("alacritty --class first_term,first_term")
+awful.spawn("alacritty --class first_term,first_term --config-file /home/alejandro/.config/alacritty/first_term.yml -e bash --norc")
 
 local front_widgets = require("penacho_mods.home_page.front_widgets")
 
